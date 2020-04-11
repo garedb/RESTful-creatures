@@ -1,41 +1,20 @@
 let express = require('express');
 let app = express();
-let fs = require('fs');
+let methodOverride = require('method-override')
 
-app.get('/dinosaurs', function(req, res) {
-	let dinosaurs = fs.readFileSync('./dinosaurs.json');
-	let dinoData = JSON.parse(dinosaurs);
-	res.send(dinoData);
-});
+// Use EJS
+app.set('view engine', 'ejs')
+app.use(methodOverride('_method'))
 
-app.post('/dinosaurs', function (req, res) {
-	// opening ds file
-	let dinosaurs = fs.readFileSync('./dinosaurs.json');
-	let dinoData = JSON.parse(dinosaurs);
+// Serve static files
+app.use(express.static('static'))
 
-	// add item from user form
-	dinosaurs.push(req.body);
+// Use body-parser
+app.use(express.urlencoded({ extended: false }))
 
-	// save new dinosaur object
-	fs.writeFileSync('./dinosaurs.json', JSON.stringify(dinosaurs));
-
-	// redirect to the GET /dinosaur route
-	res.redirect('/dinosaurs');
-
-})
-
-app.get('/dinosaurs/:id', function(req, res) {
-	let dinosaurs = fs.readFileSync('./dinosaurs.json');
-	let dinoData = JSON.parse(dinosaurs);
+// Include the controller's routes
+app.use('/dinosaurs', require('./controllers/dinosaurs'))
 
 
-	// Get the array index from our URL
-	let dinoIndex = parseInt(req.params.id);
-
-	// res.send whicher dino index got called
-	res.send(dinoData[dinoIndex]);
-})
-
-
-
+// Assign a port
 app.listen(3000);
